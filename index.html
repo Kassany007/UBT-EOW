@@ -1179,11 +1179,11 @@ async function reformulateWithAI() {
 ВАЖНО: верни ТОЛЬКО готовый текст. Никаких пояснений, никаких блоков кода.`;
 
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch('https://groq-proxy.egorovacate.workers.dev', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': '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'
+     
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
@@ -1208,7 +1208,7 @@ async function reformulateWithAI() {
     aiBtn.style.opacity = '1';
     aiBtn.disabled = false;
   } catch(e) {
-    alert('Ошибка DeepSeek: ' + e.message);
+    alert('Ошибка ИИ: ' + e.message);
     aiBtn.innerHTML = `✨ Улучшить текст`;
     aiBtn.style.opacity = '1';
     aiBtn.style.background = '';
