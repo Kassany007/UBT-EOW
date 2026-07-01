@@ -1287,6 +1287,7 @@ window._allResultsRawData = parts.join('\n').trim();
       </div>
       <div class="copy-text" id="copyTextContent2"></div>
     </div>`;
+  document.getElementById('copyTextContent2').textContent = window._allResultsRawData;
 }
 
 async function reformulateAllWithAI() {
