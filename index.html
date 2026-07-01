@@ -1243,24 +1243,29 @@ function copyText() {
 }
 
      function renderAllResultsCopyBox(weekData) {
-  // Предобработка: группируем по направлениям, все статусы
-const byDir = {};
-const dirOrder = [];
-weekData.filter(d => d.epic || d.victory).forEach(d => {
-  const dir = d.direction || 'Без направления';
-  if (!byDir[dir]) { byDir[dir] = []; dirOrder.push(dir); }
-  byDir[dir].push(d);
-});
-const parts = [];
-dirOrder.forEach(dir => {
-  parts.push(`\n[${dir}]`);
-  byDir[dir].forEach(t => {
-    const status = t.status ? ` (${t.status})` : '';
-    parts.push(`• ${t.epic || '—'}${status}`);
-    if (t.victory && t.victory !== t.epic) parts.push(`  → ${t.victory}`);
+  const byDir = {};
+  const dirOrder = [];
+  weekData.filter(d => d.epic || d.victory).forEach(d => {
+    const dir = d.direction || 'Без направления';
+    if (!byDir[dir]) { byDir[dir] = []; dirOrder.push(dir); }
+    byDir[dir].push(d);
   });
-});
-window._allResultsRawData = parts.join('\n').trim();
+  const parts = [];
+  dirOrder.forEach(dir => {
+    parts.push(`\n[${dir}]`);
+    const epicMap = new Map();
+    byDir[dir].forEach(t => {
+      const key = (t.epic || '—').trim();
+      if (!epicMap.has(key)) epicMap.set(key, []);
+      if (t.victory && t.victory.trim() && t.victory.trim() !== key)
+        epicMap.get(key).push(t.victory.trim());
+    });
+    epicMap.forEach((victories, epic) => {
+      parts.push(`• ${epic}`);
+      [...new Set(victories)].forEach(v => parts.push(`  → ${v}`));
+    });
+  });
+  window._allResultsRawData = parts.join('\n').trim();
    window._allResultsWeekLabel = selectedWeek !== 'all'
     ? weekLabel(selectedWeek)
     : new Date().toLocaleDateString('ru', {day:'numeric', month:'long', year:'numeric'});
