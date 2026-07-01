@@ -1242,18 +1242,26 @@ function copyText() {
   });
 }
 
-  function renderAllResultsCopyBox(weekData) {
-  const lines = weekData
-    .filter(d => d.epic || d.victory)
-    .map(d => {
-      const dir = d.direction ? `[${d.direction}]` : '';
-      const status = d.status ? ` (${d.status})` : '';
-      const result = (d.victory && d.victory !== d.epic) ? ` — ${d.victory}` : '';
-      return `${dir} ${d.epic || ''}${status}${result}`.trim();
-    })
-    .filter(Boolean);
-  window._allResultsRawData = lines.join('\n');
-  window._allResultsWeekLabel = selectedWeek !== 'all'
+     function renderAllResultsCopyBox(weekData) {
+  // Предобработка: группируем по направлениям, все статусы
+const byDir = {};
+const dirOrder = [];
+weekData.filter(d => d.epic || d.victory).forEach(d => {
+  const dir = d.direction || 'Без направления';
+  if (!byDir[dir]) { byDir[dir] = []; dirOrder.push(dir); }
+  byDir[dir].push(d);
+});
+const parts = [];
+dirOrder.forEach(dir => {
+  parts.push(`\n[${dir}]`);
+  byDir[dir].forEach(t => {
+    const status = t.status ? ` (${t.status})` : '';
+    parts.push(`• ${t.epic || '—'}${status}`);
+    if (t.victory && t.victory !== t.epic) parts.push(`  → ${t.victory}`);
+  });
+});
+window._allResultsRawData = parts.join('\n').trim();
+   window._allResultsWeekLabel = selectedWeek !== 'all'
     ? weekLabel(selectedWeek)
     : new Date().toLocaleDateString('ru', {day:'numeric', month:'long', year:'numeric'});
 
