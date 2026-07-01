@@ -1256,13 +1256,19 @@ function copyText() {
     const epicMap = new Map();
     byDir[dir].forEach(t => {
       const key = (t.epic || '—').trim();
-      if (!epicMap.has(key)) epicMap.set(key, []);
+      if (!epicMap.has(key)) {
+        epicMap.set(key, { status: t.status || '', victories: [] });
+      } else if (/релиз|выполнено/i.test(t.status)) {
+        epicMap.get(key).status = t.status;
+      }
       if (t.victory && t.victory.trim() && t.victory.trim() !== key)
-        epicMap.get(key).push(t.victory.trim());
+        epicMap.get(key).victories.push(t.victory.trim());
     });
-    epicMap.forEach((victories, epic) => {
-      parts.push(`• ${epic}`);
-      [...new Set(victories)].forEach(v => parts.push(`  → ${v}`));
+    epicMap.forEach((meta, epic) => {
+      const statusText = meta.status && !/выполняется/i.test(meta.status)
+        ? ` (${meta.status})` : '';
+      parts.push(`• ${epic}${statusText}`);
+      [...new Set(meta.victories)].forEach(v => parts.push(`  → ${v}`));
     });
   });
   window._allResultsRawData = parts.join('\n').trim();
@@ -1307,7 +1313,9 @@ async function reformulateAllWithAI() {
   aiStatus2.style.display = 'flex';
   const weekStr = window._allResultsWeekLabel || '';
 
-  const SYSTEM_PROMPT = `Ты редактор еженедельного управленческого отчёта. Обработай данные сотрудников и сформируй консолидацию итогов недели.
+  const SYSTEM_PROMPT = `Отвечай ТОЛЬКО на русском языке. Используй ТОЛЬКО информацию из предоставленных данных — никогда не придумывай примеры, имена и результаты.
+
+Ты редактор еженедельного управленческого отчёта. Обработай данные сотрудников и сформируй консолидацию итогов недели.
 
 include_appeals = false — тематику «Обращения» полностью исключить из всех разделов.
 
