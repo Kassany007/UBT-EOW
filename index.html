@@ -1282,6 +1282,10 @@ function copyText() {
 async function reformulateAllWithAI() {
   const raw = window._allResultsRawData;
   if (!raw) return;
+  if (selectedWeek === 'all') {
+    alert('Выберите конкретную неделю для анализа ИИ. «Все недели» содержат слишком много данных.');
+    return;
+  }
   const aiBtn2 = document.getElementById('aiBtn2');
   const aiStatus2 = document.getElementById('aiStatus2');
   aiBtn2.disabled = true;
