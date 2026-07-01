@@ -1243,15 +1243,16 @@ function copyText() {
 }
 
   function renderAllResultsCopyBox(weekData) {
-  const rows = weekData.map(d => ({
-    employee: d.who || '',
-    project: d.direction || '',
-    task: d.epic || '',
-    result: d.victory || d.epic || '',
-    status: d.status || '',
-    date: d.dateStart || ''
-  }));
-  window._allResultsRawData = JSON.stringify(rows, null, 2);
+  const lines = weekData
+    .filter(d => d.epic || d.victory)
+    .map(d => {
+      const dir = d.direction ? `[${d.direction}]` : '';
+      const status = d.status ? ` (${d.status})` : '';
+      const result = (d.victory && d.victory !== d.epic) ? ` — ${d.victory}` : '';
+      return `${dir} ${d.epic || ''}${status}${result}`.trim();
+    })
+    .filter(Boolean);
+  window._allResultsRawData = lines.join('\n');
   window._allResultsWeekLabel = selectedWeek !== 'all'
     ? weekLabel(selectedWeek)
     : new Date().toLocaleDateString('ru', {day:'numeric', month:'long', year:'numeric'});
@@ -1274,7 +1275,7 @@ function copyText() {
       <div id="aiStatus2" style="display:none; padding:8px 1.25rem; font-size:12px; background:var(--partial-tag-bg); color:var(--partial-tag); border-bottom:1px solid var(--border); align-items:center; gap:8px;">
         <div class="spinner-sm"></div><span>ИИ обрабатывает все результаты...</span>
       </div>
-      <div class="copy-text" id="copyTextContent2" style="color:var(--muted);font-style:italic;">Нажмите «Сформировать текст» для обработки всех ${weekData.length} задач</div>
+      <div class="copy-text" id="copyTextContent2" style="color:var(--muted);font-style:italic;">Нажмите «Сформировать текст» для обработки всех всех ${lines.length} задач</div>
     </div>`;
 }
 
