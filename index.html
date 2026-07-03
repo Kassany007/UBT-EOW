@@ -1270,7 +1270,7 @@ model: 'llama-3.3-70b-versatile',
 max_tokens: 2500,
 messages: [
 { role: 'system', content: SYSTEM_PROMPT },
-{ role: 'user', content: `Переформулируй этот отчёт по правилам стиля:\n\n${raw.split('\n').map(line => line.length > 120 ? line.slice(0,120)+'…' : line).join('\n')}` }
+{ role: 'user', content: `Переформулируй этот отчёт по правилам стиля:\n\n${raw.split('\n').map(line => line.length > 60 ? line.slice(0,60)+'…' : line).join('\n')}` }
 ]
 })
 });
