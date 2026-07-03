@@ -560,6 +560,7 @@ body { padding-bottom: 70px; }
 <div id="missingSection"></div>
 </div>
 <div id="tab-content-messenger" class="tab-content" style="display:none;">
+<div id="lock-screen-messenger" style="display:none;"></div>
 <div id="copySection"></div>
 </div>
 
@@ -711,12 +712,12 @@ document.getElementById('app').innerHTML=`<div class="error-screen"><p>⚠️ Н
 
 let activeTab = 'data';
 let _adminUnlocked = false;
-const PROTECTED_TABS = ['staff', 'missing'];
+const PROTECTED_TABS = ['staff', 'missing', 'messenger'];
 const ADMIN_PWD = 'superlead';
 
 function _renderLockScreen(tab) {
 const lockEl = document.getElementById('lock-screen-' + tab);
-const contentId = tab === 'staff' ? 'staffSection' : 'missingSection';
+const contentId = tab === 'staff' ? 'staffSection' : tab === 'missing' ? 'missingSection' : 'copySection';
 document.getElementById(contentId).style.display = 'none';
 lockEl.style.display = 'block';
 lockEl.innerHTML = `<div class="locked-screen">
@@ -754,7 +755,7 @@ document.getElementById('metricsRow').style.display = tab === 'data' ? '' : 'non
 // Hide lock screen and show content when unlocked
 if (PROTECTED_TABS.includes(tab)) {
   const lockEl = document.getElementById('lock-screen-' + tab);
-  const contentId = tab === 'staff' ? 'staffSection' : 'missingSection';
+  const contentId = tab === 'staff' ? 'staffSection' : tab === 'missing' ? 'missingSection' : 'copySection';
   if (lockEl) lockEl.style.display = 'none';
   document.getElementById(contentId).style.display = '';
 }
