@@ -1070,14 +1070,7 @@ html += `</div></div>`;
 document.getElementById('missingSection').innerHTML = html;
 
 // Update badge on tab
-const badge = document.getElementById('missingBadge');
-const total = missingPeople.length + missingDirs.length;
-if (total > 0) {
-badge.textContent = total;
-badge.style.display = 'inline-flex';
-} else {
-badge.style.display = 'none';
-}
+document.getElementById('missingBadge').style.display = 'none';
 }
 
 function renderCopyBox(groups) {
