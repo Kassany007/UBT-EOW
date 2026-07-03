@@ -363,6 +363,27 @@ white-space: pre-wrap; word-break: break-word; max-height: 300px; overflow-y: au
 font-family: 'Onest', sans-serif; background: var(--white);
 }
 
+/* LOCKED TAB */
+.locked-screen {
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+min-height: 40vh; gap: 16px; padding: 2rem; text-align: center;
+}
+.locked-icon { font-size: 40px; opacity: 0.35; }
+.locked-title { font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+.locked-sub { font-size: 13px; color: var(--muted); max-width: 300px; line-height: 1.6; }
+.locked-pwd-row { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.locked-pwd-row input {
+background: var(--light); border: 1px solid var(--border2); border-radius: var(--radius-sm);
+color: var(--text); font-family: 'Onest', sans-serif; font-size: 13px; padding: 7px 12px;
+outline: none; width: 160px;
+}
+.locked-pwd-row input:focus { border-color: var(--release-accent); }
+.locked-pwd-row button {
+background: var(--text); border: none; border-radius: var(--radius-sm);
+color: var(--white); font-family: 'Onest', sans-serif; font-size: 13px; padding: 7px 16px; cursor: pointer;
+}
+.locked-error { font-size: 12px; color: #c0392b; display: none; }
+
 /* STATES */
 .loading-screen, .error-screen {
 display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -687,16 +708,61 @@ document.getElementById('app').innerHTML=`<div class="error-screen"><p>⚠️ Н
 }
 
 let activeTab = 'data';
-function switchTab(tab) {
+let _adminUnlocked = false;
+const PROTECTED_TABS = ['staff', 'missing'];
+const ADMIN_PWD = 'superlead';
+
+function _renderLockScreen(tab) {
+const el = document.getElementById('tab-content-' + tab);
+el.innerHTML = `<div class="locked-screen">
+  <div class="locked-icon">🔒</div>
+  <div class="locked-title">Раздел в разработке</div>
+  <div class="locked-sub">Этот раздел пока недоступен для просмотра.</div>
+  <div class="locked-pwd-row">
+    <input type="password" id="pwd-${tab}" placeholder="Код доступа" onkeydown="if(event.key==='Enter')_checkPwd('${tab}')">
+    <button onclick="_checkPwd('${tab}')">Войти</button>
+  </div>
+  <div class="locked-error" id="pwd-err-${tab}">Неверный код</div>
+</div>`;
+}
+
+function _checkPwd(tab) {
+const val = document.getElementById('pwd-' + tab).value;
+if (val === ADMIN_PWD) {
+  _adminUnlocked = true;
+  _doSwitchTab(tab);
+} else {
+  const err = document.getElementById('pwd-err-' + tab);
+  err.style.display = 'block';
+  document.getElementById('pwd-' + tab).value = '';
+}
+}
+
+function _doSwitchTab(tab) {
 activeTab = tab;
 ['data','staff','missing','messenger'].forEach(t => {
-document.getElementById('tab-content-'+t).style.display = t === tab ? 'block' : 'none';
-document.getElementById('tab-'+t).classList.toggle('active', t === tab);
+  document.getElementById('tab-content-'+t).style.display = t === tab ? 'block' : 'none';
+  document.getElementById('tab-'+t).classList.toggle('active', t === tab);
 });
-// Toolbar only visible on data tab
 document.getElementById('toolbarRow').style.display = tab === 'data' ? 'flex' : 'none';
 document.getElementById('metricsRow').style.display = tab === 'data' ? '' : 'none';
 if (tab === 'staff') renderStaffTab();
+}
+
+function switchTab(tab) {
+if (PROTECTED_TABS.includes(tab) && !_adminUnlocked) {
+  // Switch to the tab visually but show lock screen
+  activeTab = tab;
+  ['data','staff','missing','messenger'].forEach(t => {
+    document.getElementById('tab-content-'+t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t === tab);
+  });
+  document.getElementById('toolbarRow').style.display = 'none';
+  document.getElementById('metricsRow').style.display = 'none';
+  _renderLockScreen(tab);
+  return;
+}
+_doSwitchTab(tab);
 }
 
 function buildWeekTabs() {
